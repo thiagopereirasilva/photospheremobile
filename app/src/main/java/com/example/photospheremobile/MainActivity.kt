@@ -117,13 +117,13 @@ class MainActivity : AppCompatActivity() {
                 Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
                     CameraConfiguration(
-                        exposureCompensation = manualExposure(0 + count)
+                        exposureCompensation = highestExposure()
                     )
                 )
                 fotoapparat
                     ?.takePicture()
                     ?.saveToFile(myDir)
-                count+=2
+                count++
             }
             fotoapparat?.updateConfiguration(
                 CameraConfiguration(
