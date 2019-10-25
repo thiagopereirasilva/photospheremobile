@@ -19,13 +19,14 @@ import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.content_main.*
 import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     var fotoapparat: Fotoapparat? = null
     val filename = "test"
-    val sd = Environment.getExternalStorageDirectory()
+    val sd = Environment.getDataDirectory()
 
     var fotoapparatState: FotoapparatState? = null
     var cameraStatus: CameraState? = null
@@ -33,7 +34,6 @@ class MainActivity : AppCompatActivity() {
 
     var flashState: FlashState? = null
     var exposure: ExposureSelector? = null
-
 
 
     val permissions = arrayOf(
@@ -106,23 +106,30 @@ class MainActivity : AppCompatActivity() {
             requestPermission()
         } else {
             var count = 0
-            var interval = exposure.let { highestExposure() }
+            val root = Environment.getExternalStorageDirectory().toString()
             while (count < 7) {
-                val dest = File(sd, filename + count + ".png")
-                Log.i("PATH: ", dest.absolutePath)
+                var myDir = File("$root/Codility Pictures")
+                if (!myDir.exists()) {
+                    myDir.mkdirs()
+                }
+                myDir = File(myDir, "$filename$count.png")
+
+                Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
                     CameraConfiguration(
                         exposureCompensation = manualExposure(0 + count)
-                    ))
+                    )
+                )
                 fotoapparat
                     ?.takePicture()
-                    ?.saveToFile(dest)
-                count++
+                    ?.saveToFile(myDir)
+                count+=2
             }
             fotoapparat?.updateConfiguration(
                 CameraConfiguration(
                     exposureCompensation = manualExposure(0)
-                ))
+                )
+            )
         }
     }
 
