@@ -1,15 +1,15 @@
-package com.example.photospheremobile
+package com.example.photospheremobile.views
 
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Camera
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.photospheremobile.R
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
@@ -17,12 +17,10 @@ import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
 import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
-import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.content_camera.*
 import java.io.File
-import java.io.FileOutputStream
-import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class CameraActivity : AppCompatActivity() {
 
     var fotoapparat: Fotoapparat? = null
     val filename = "test"
@@ -44,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_camera)
         var value = exposure.let { highestExposure() }
         createFotoapparat()
 
@@ -55,14 +53,6 @@ class MainActivity : AppCompatActivity() {
 
         fab_camera.setOnClickListener {
             takePhoto()
-        }
-
-        fab_switch_camera.setOnClickListener {
-            switchCamera()
-        }
-
-        fab_flash.setOnClickListener {
-            changeFlashState()
         }
     }
 
@@ -75,11 +65,22 @@ class MainActivity : AppCompatActivity() {
             scaleType = ScaleType.CenterCrop,
             lensPosition = back(),
             logger = loggers(
-                logcat()
+                logcat().also { highestExposure() }.also { lowestExposure() }
             ),
             cameraErrorCallback = { error ->
                 println("Recorder errors: $error")
             }
+        )
+
+        fotoapparat?.updateConfiguration(
+            CameraConfiguration(
+                pictureResolution = highestResolution()
+            )
+        )
+        fotoapparat?.updateConfiguration(
+            CameraConfiguration(
+                jpegQuality = highestQuality()
+            )
         )
     }
 
@@ -97,7 +98,8 @@ class MainActivity : AppCompatActivity() {
             cameraConfiguration = CameraConfiguration()
         )
 
-        if (cameraStatus == CameraState.BACK) cameraStatus = CameraState.FRONT
+        if (cameraStatus == CameraState.BACK) cameraStatus =
+            CameraState.FRONT
         else cameraStatus = CameraState.BACK
     }
 
@@ -107,6 +109,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             var count = 0
             val root = Environment.getExternalStorageDirectory().toString()
+
             while (count < 7) {
                 var myDir = File("$root/Codility Pictures")
                 if (!myDir.exists()) {
@@ -117,7 +120,8 @@ class MainActivity : AppCompatActivity() {
                 Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
                     CameraConfiguration(
-                        exposureCompensation = highestExposure()
+//                        exposureCompensation = manualExposure(count * 2)
+                        exposureCompensation = lowestExposure()
                     )
                 )
                 fotoapparat
@@ -128,6 +132,7 @@ class MainActivity : AppCompatActivity() {
             fotoapparat?.updateConfiguration(
                 CameraConfiguration(
                     exposureCompensation = manualExposure(0)
+
                 )
             )
         }
@@ -169,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         if (!hasNoPermissions() && fotoapparatState == FotoapparatState.OFF) {
-            val intent = Intent(baseContext, MainActivity::class.java)
+            val intent = Intent(baseContext, CameraActivity::class.java)
             startActivity(intent)
             finish()
         }
