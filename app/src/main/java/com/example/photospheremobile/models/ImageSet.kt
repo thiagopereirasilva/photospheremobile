@@ -1,6 +1,19 @@
 package com.example.photospheremobile.models
 
+import com.google.gson.annotations.SerializedName
 import java.util.*
 
-//TODO List for images
-class ImageSet(val id: String, val label: String, val description: String, val createDate: Date)
+class ImageSet(
+    @SerializedName("id")
+    val id: String,
+    @SerializedName("label")
+    val label: String,
+    @SerializedName("description")
+    val description: String,
+    @SerializedName("calibration")
+    val calibration: Double,
+    @SerializedName("author")
+    val author: String,
+    @SerializedName("createDate")
+    val createDate: Date
+)

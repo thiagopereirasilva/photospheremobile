@@ -3,22 +3,28 @@ package com.example.photospheremobile.views
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.photospheremobile.R
+import com.example.photospheremobile.service.ImageSetServiceImpl
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
+import io.fotoapparat.result.PhotoResult
+import io.fotoapparat.result.WhenDoneListener
 import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.content_camera.*
 import java.io.File
+import java.util.*
 
 class CameraActivity : AppCompatActivity() {
 
@@ -40,6 +46,7 @@ class CameraActivity : AppCompatActivity() {
         android.Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_camera)
@@ -84,6 +91,21 @@ class CameraActivity : AppCompatActivity() {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun encoder(filePath: String): String {
+        val bytes = File(filePath).readBytes()
+        return Base64.getEncoder().encodeToString(bytes)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun sendPhoto(filePath: String, uuid: UUID, imageName: String) {
+        ImageSetServiceImpl().uploadImage(
+            imageName,
+            uuid.toString(),
+            encoder(filePath)
+        )
+    }
+
     private fun changeFlashState() {
         fotoapparat?.updateConfiguration(
             CameraConfiguration(
@@ -103,19 +125,21 @@ class CameraActivity : AppCompatActivity() {
         else cameraStatus = CameraState.BACK
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takePhoto() {
         if (hasNoPermissions()) {
             requestPermission()
         } else {
             var count = 0
+            var countSendPhoto = 0
             val root = Environment.getExternalStorageDirectory().toString()
-
+            val uuid = UUID.randomUUID()
             while (count < 7) {
                 var myDir = File("$root/Codility Pictures")
                 if (!myDir.exists()) {
                     myDir.mkdirs()
                 }
-                myDir = File(myDir, "$filename$count.png")
+                myDir = File(myDir, "$filename$count.jpeg")
 
                 Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
@@ -124,9 +148,12 @@ class CameraActivity : AppCompatActivity() {
                         exposureCompensation = lowestExposure()
                     )
                 )
-                fotoapparat
-                    ?.takePicture()
+                fotoapparat?.takePicture()
                     ?.saveToFile(myDir)
+                    ?.whenAvailable { bitmap ->
+                        sendPhoto(myDir.absolutePath, uuid, "$filename$count.jpeg")
+                        countSendPhoto++
+                    }
                 count++
             }
             fotoapparat?.updateConfiguration(
