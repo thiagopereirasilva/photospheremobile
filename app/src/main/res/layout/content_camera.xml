@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimary"
-    tools:context=".views.MainActivity">
+    tools:context=".views.CameraActivity">
 
     <io.fotoapparat.view.CameraView
         android:id="@+id/camera_view"

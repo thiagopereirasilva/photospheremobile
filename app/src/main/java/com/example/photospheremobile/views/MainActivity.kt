@@ -2,17 +2,15 @@ package com.example.photospheremobile.views
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.photospheremobile.R
 import com.example.photospheremobile.adapters.ImageSetListAdapter
 import com.example.photospheremobile.models.ImageSet
-
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.util.*
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,24 +31,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     private fun imageSets(): List<ImageSet> {
         return listOf(
             ImageSet(
                 "ID:ABC",
                 "Label 1",
                 "Desc 1",
+                12.0,
+                "Jorge",
                 Date()
             ),
             ImageSet(
                 "ID:DEF",
                 "Label 2",
                 "Desc 2",
+                12.0,
+                "Ester",
                 Date()
             ),
             ImageSet(
                 "ID:GHI",
                 "Label 3",
                 "Desc 3",
+                12.0,
+                "John",
                 Date()
             )
         )

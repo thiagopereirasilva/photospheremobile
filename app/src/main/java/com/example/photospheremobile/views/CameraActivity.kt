@@ -3,47 +3,58 @@ package com.example.photospheremobile.views
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.WindowManager
+import androidx.annotation.Nullable
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.photospheremobile.R
+import com.example.photospheremobile.service.ImageSetServiceImpl
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
+import io.fotoapparat.result.WhenDoneListener
 import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.content_camera.*
 import java.io.File
+import java.util.*
+
 
 class CameraActivity : AppCompatActivity() {
 
-    var fotoapparat: Fotoapparat? = null
-    val filename = "test"
-    val sd = Environment.getDataDirectory()
+    private var fotoapparat: Fotoapparat? = null
+    private val filename = "test"
 
-    var fotoapparatState: FotoapparatState? = null
+
+    private var fotoapparatState: FotoapparatState? = null
     var cameraStatus: CameraState? = null
-    lateinit var cameraExpo: android.hardware.Camera.Parameters
-
     var flashState: FlashState? = null
     var exposure: ExposureSelector? = null
 
 
-    val permissions = arrayOf(
-        android.Manifest.permission.CAMERA,
-        android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    private val permissions = arrayOf(
+        Manifest.permission.CAMERA,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.READ_EXTERNAL_STORAGE
     )
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportActionBar!!.hide()
+        window.setFlags(
+            WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            WindowManager.LayoutParams.FLAG_FULLSCREEN
+        )
         setContentView(R.layout.activity_camera)
-        var value = exposure.let { highestExposure() }
         createFotoapparat()
 
         cameraStatus = CameraState.BACK
@@ -53,6 +64,7 @@ class CameraActivity : AppCompatActivity() {
 
         fab_camera.setOnClickListener {
             takePhoto()
+            Log.i("Terminou", "SIM")
         }
     }
 
@@ -84,38 +96,39 @@ class CameraActivity : AppCompatActivity() {
         )
     }
 
-    private fun changeFlashState() {
-        fotoapparat?.updateConfiguration(
-            CameraConfiguration(
-                exposureCompensation = manualExposure(10)
-            )
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun encoder(filePath: String): String {
+        val bytes = File(filePath).readBytes()
+        return Base64.getEncoder().encodeToString(bytes)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun sendPhoto(filePath: String, uuid: UUID, imageName: String) {
+        ImageSetServiceImpl().uploadImage(
+            imageName,
+            uuid.toString(),
+            encoder(filePath)
         )
     }
 
-    private fun switchCamera() {
-        fotoapparat?.switchTo(
-            lensPosition = if (cameraStatus == CameraState.BACK) front() else back(),
-            cameraConfiguration = CameraConfiguration()
-        )
-
-        if (cameraStatus == CameraState.BACK) cameraStatus =
-            CameraState.FRONT
-        else cameraStatus = CameraState.BACK
-    }
-
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun takePhoto() {
         if (hasNoPermissions()) {
             requestPermission()
         } else {
             var count = 0
             val root = Environment.getExternalStorageDirectory().toString()
+            val uuid = UUID.randomUUID()
+            val dirs = mutableMapOf<String, String>()
 
             while (count < 7) {
-                var myDir = File("$root/Codility Pictures")
+                var myDir = File("$root/PhotoAppPicturesIMD")
+                var imageName = filename + "_" + uuid + "_" + count + ".jpeg"
+
                 if (!myDir.exists()) {
                     myDir.mkdirs()
                 }
-                myDir = File(myDir, "$filename$count.png")
+                myDir = File(myDir, imageName)
 
                 Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
@@ -124,15 +137,27 @@ class CameraActivity : AppCompatActivity() {
                         exposureCompensation = lowestExposure()
                     )
                 )
+
                 fotoapparat
                     ?.takePicture()
-                    ?.saveToFile(myDir)
+                    ?.saveToFile(myDir)?.whenDone(object : WhenDoneListener<Unit> {
+                        override fun whenDone(@Nullable unit: Unit?) {
+                            if (unit != null) {
+                                Log.i("Done: ", "Done")
+                                sendPhoto(myDir.absolutePath, uuid, imageName)
+                            }
+                        }
+                    })
+
+
+                dirs.put(myDir.absolutePath, imageName)
+
                 count++
             }
+
             fotoapparat?.updateConfiguration(
                 CameraConfiguration(
                     exposureCompensation = manualExposure(0)
-
                 )
             )
         }
@@ -161,7 +186,7 @@ class CameraActivity : AppCompatActivity() {
         ) != PackageManager.PERMISSION_GRANTED
     }
 
-    fun requestPermission() {
+    private fun requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0)
     }
 
