@@ -12,6 +12,19 @@
         android:layout_height="match_parent"
         android:layout_above="@id/fab_camera" />
 
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/back_home"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="false"
+        android:layout_margin="32dp"
+        android:elevation="0dp"
+        android:src="@drawable/ic_arrow_back_black_24dp"
+        app:backgroundTint="@color/colorPrimaryDark"
+        app:fabSize="normal" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_camera"
         android:layout_width="wrap_content"

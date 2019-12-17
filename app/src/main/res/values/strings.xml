@@ -5,4 +5,6 @@
     <string name="create_image_set">Create image set</string>
     <string name="label">Label</string>
     <string name="description">Description</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

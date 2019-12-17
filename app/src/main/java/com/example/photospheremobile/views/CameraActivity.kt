@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.photospheremobile.R
 import com.example.photospheremobile.service.ImageSetServiceImpl
+import com.example.photospheremobile.views.fragments.DialogNewImageSet
 import io.fotoapparat.Fotoapparat
 import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
@@ -65,6 +66,11 @@ class CameraActivity : AppCompatActivity() {
         fab_camera.setOnClickListener {
             takePhoto()
             Log.i("Terminou", "SIM")
+        }
+
+        back_home.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -119,8 +125,8 @@ class CameraActivity : AppCompatActivity() {
             var count = 0
             val root = Environment.getExternalStorageDirectory().toString()
             val uuid = UUID.randomUUID()
-            val dirs = mutableMapOf<String, String>()
-
+//            val dirs = mutableMapOf<String, String>()
+            var exposure = -3
             while (count < 7) {
                 var myDir = File("$root/PhotoAppPicturesIMD")
                 var imageName = filename + "_" + uuid + "_" + count + ".jpeg"
@@ -133,8 +139,7 @@ class CameraActivity : AppCompatActivity() {
                 Log.i("PATH: ", myDir.absolutePath)
                 fotoapparat?.updateConfiguration(
                     CameraConfiguration(
-//                        exposureCompensation = manualExposure(count * 2)
-                        exposureCompensation = lowestExposure()
+                        exposureCompensation = manualExposure(exposure)
                     )
                 )
 
@@ -144,15 +149,17 @@ class CameraActivity : AppCompatActivity() {
                         override fun whenDone(@Nullable unit: Unit?) {
                             if (unit != null) {
                                 Log.i("Done: ", "Done")
-                                sendPhoto(myDir.absolutePath, uuid, imageName)
+//                                sendPhoto(myDir.absolutePath, uuid, imageName)
+                                if (count == 7)
+                                    showDialogNewImageSet()
                             }
                         }
                     })
 
 
-                dirs.put(myDir.absolutePath, imageName)
-
                 count++
+                exposure++
+                Log.i("exposure: ", exposure.toString())
             }
 
             fotoapparat?.updateConfiguration(
@@ -161,6 +168,11 @@ class CameraActivity : AppCompatActivity() {
                 )
             )
         }
+    }
+
+    private fun showDialogNewImageSet() {
+        val myFragment = DialogNewImageSet()
+        myFragment.show(supportFragmentManager, "DialogNewImageSet")
     }
 
     override fun onStart() {
