@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.os.Environment
 import android.util.Log
 import android.view.WindowManager
-import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -21,10 +20,12 @@ import io.fotoapparat.configuration.CameraConfiguration
 import io.fotoapparat.log.logcat
 import io.fotoapparat.log.loggers
 import io.fotoapparat.parameter.ScaleType
-import io.fotoapparat.result.WhenDoneListener
 import io.fotoapparat.selector.*
 import io.fotoapparat.view.CameraView
 import kotlinx.android.synthetic.main.content_camera.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 
@@ -64,8 +65,11 @@ class CameraActivity : AppCompatActivity() {
 
 
         fab_camera.setOnClickListener {
-            takePhoto()
-            Log.i("Terminou", "SIM")
+            CoroutineScope(IO).launch {
+                takePhoto()
+                showDialogNewImageSet()
+            }
+            Log.i("OVER", "YES")
         }
 
         back_home.setOnClickListener {
@@ -118,7 +122,7 @@ class CameraActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun takePhoto() {
+    private suspend fun takePhoto() {
         if (hasNoPermissions()) {
             requestPermission()
         } else {
@@ -143,20 +147,22 @@ class CameraActivity : AppCompatActivity() {
                     )
                 )
 
-                fotoapparat
+                val result = fotoapparat
                     ?.takePicture()
-                    ?.saveToFile(myDir)?.whenDone(object : WhenDoneListener<Unit> {
-                        override fun whenDone(@Nullable unit: Unit?) {
-                            if (unit != null) {
-                                Log.i("Done: ", "Done")
+                    ?.saveToFile(myDir)?.await()
+
+                if (result != null) {
+                    Log.i("PHOTO: ", count.toString())
+                }
+//                .whenDone(object : WhenDoneListener<Unit> {
+//                        override fun whenDone(@Nullable unit: Unit?) {
+//                            if (unit != null) {
+//                                Log.i("Done: ", "Done")
 //                                sendPhoto(myDir.absolutePath, uuid, imageName)
-                                if (count == 7)
-                                    showDialogNewImageSet()
-                            }
-                        }
-                    })
-
-
+//
+//                            }
+//                        }
+//                    })
                 count++
                 exposure++
                 Log.i("exposure: ", exposure.toString())
