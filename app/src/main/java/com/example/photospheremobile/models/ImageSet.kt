@@ -3,17 +3,54 @@ package com.example.photospheremobile.models
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-class ImageSet(
+class ImageSet {
     @SerializedName("id")
-    val id: String,
+    var id: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
+
+    @SerializedName("uuid")
+    var uuid: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
     @SerializedName("label")
-    val label: String,
+    var label: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
     @SerializedName("description")
-    val description: String,
+    var description: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
     @SerializedName("calibration")
-    val calibration: Double,
+    var calibration: Double? = null
+        get() = field
+        set(value) {
+            field = value
+        }
     @SerializedName("author")
-    val author: String,
-    @SerializedName("createDate")
-    val createDate: Date
-)
+    var author: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
+    @SerializedName("images_paths")
+    var imagesPaths: List<String>? = null
+        get() = field
+        set(value) {
+            field = value
+        }
+    @SerializedName("created_date")
+    var createDate: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
+}

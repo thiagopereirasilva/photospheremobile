@@ -1,13 +1,15 @@
 package com.example.photospheremobile.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.photospheremobile.R
 import com.example.photospheremobile.models.ImageSet
+import com.example.photospheremobile.views.MainActivity
 import kotlinx.android.synthetic.main.image_set_item.view.*
+
 
 class ImageSetListAdapter(
     private val imageSets: List<ImageSet>,
@@ -15,7 +17,7 @@ class ImageSetListAdapter(
 ) :
     RecyclerView.Adapter<ImageSetListAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.image_set_item, parent, false)
+        val view = LayoutInflater.from(context).inflate(com.example.photospheremobile.R.layout.image_set_item, parent, false)
         return ViewHolder(view)
     }
 
@@ -29,6 +31,14 @@ class ImageSetListAdapter(
         holder?.let {
             it.label.text = imageSet.label
             it.description.text = imageSet.description
+            it.itemView.setOnClickListener {
+//                Log.i("CLICK", "CLICK")
+                val intent = Intent(context, MainActivity::class.java)
+//                intent.putExtra("image_url", imageSet)
+                context.startActivity(intent)
+            }
+
+
         }
     }
 

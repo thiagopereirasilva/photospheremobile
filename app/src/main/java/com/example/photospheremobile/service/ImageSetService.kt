@@ -9,11 +9,8 @@ import java.util.*
 
 interface ImageSetService {
 
-    @GET("image-sets")
-    fun getImageSets(): Call<List<ImageSet>>
-
-    @GET("images/hdr")
-    fun getTest(): Call<Any?>
+    @GET("imageset")
+    fun getImageSets(): Call<MutableList<ImageSet>>
 
     @POST("images/upload")
     @Headers("Content-type:image/jpeg")
@@ -22,5 +19,9 @@ interface ImageSetService {
         @Header("phone_UUID") uuid: String,
         @Body imageContent: String
     ): Call<Map<String, Objects>>
+
+    @POST("imageset")
+    @Headers("Content-type:application/json")
+    fun saveImageSet(@Body imageSet: ImageSet): Call<Map<String, Objects>>
 
 }
