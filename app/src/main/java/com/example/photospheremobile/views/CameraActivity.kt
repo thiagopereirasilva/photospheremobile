@@ -33,13 +33,12 @@ import java.util.*
 class CameraActivity : AppCompatActivity() {
 
     private var fotoapparat: Fotoapparat? = null
-    private val filename = "test"
-
 
     private var fotoapparatState: FotoapparatState? = null
     var cameraStatus: CameraState? = null
     var flashState: FlashState? = null
     var exposure: ExposureSelector? = null
+    var uuid: UUID? = null
 
 
     private val permissions = arrayOf(
@@ -66,7 +65,8 @@ class CameraActivity : AppCompatActivity() {
 
         fab_camera.setOnClickListener {
             CoroutineScope(IO).launch {
-                takePhoto()
+                uuid = UUID.randomUUID()
+                takePhoto(uuid!!)
                 showDialogNewImageSet()
             }
             Log.i("OVER", "YES")
@@ -122,18 +122,17 @@ class CameraActivity : AppCompatActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private suspend fun takePhoto() {
+    private suspend fun takePhoto(uuid: UUID) {
         if (hasNoPermissions()) {
             requestPermission()
         } else {
             var count = 0
             val root = Environment.getExternalStorageDirectory().toString()
-            val uuid = UUID.randomUUID()
-//            val dirs = mutableMapOf<String, String>()
             var exposure = -3
             while (count < 7) {
-                var myDir = File("$root/PhotoAppPicturesIMD")
-                var imageName = filename + "_" + uuid + "_" + count + ".jpeg"
+                var myDir = File("$root/PhotoAppPicturesIMD/$uuid")
+                var imageName = uuid.toString() + "_" + count + ".jpeg"
+//            val dirs = mutableMapOf<String, String>()
 
                 if (!myDir.exists()) {
                     myDir.mkdirs()
@@ -153,16 +152,10 @@ class CameraActivity : AppCompatActivity() {
 
                 if (result != null) {
                     Log.i("PHOTO: ", count.toString())
+                    sendPhoto(myDir.absolutePath, uuid, imageName)
+                } else {
+                    Log.e("ERROR: ", count.toString())
                 }
-//                .whenDone(object : WhenDoneListener<Unit> {
-//                        override fun whenDone(@Nullable unit: Unit?) {
-//                            if (unit != null) {
-//                                Log.i("Done: ", "Done")
-//                                sendPhoto(myDir.absolutePath, uuid, imageName)
-//
-//                            }
-//                        }
-//                    })
                 count++
                 exposure++
                 Log.i("exposure: ", exposure.toString())
@@ -178,6 +171,9 @@ class CameraActivity : AppCompatActivity() {
 
     private fun showDialogNewImageSet() {
         val myFragment = DialogNewImageSet()
+        val args = Bundle()
+        args.putString("UUID", uuid.toString())
+        myFragment.arguments = args
         myFragment.show(supportFragmentManager, "DialogNewImageSet")
     }
 
