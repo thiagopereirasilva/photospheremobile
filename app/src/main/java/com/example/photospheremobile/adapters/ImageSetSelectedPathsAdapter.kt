@@ -1,10 +1,13 @@
 package com.example.photospheremobile.adapters
 
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.photospheremobile.views.FullScreenImageSelectedActivity
+import com.example.photospheremobile.views.ImageSetSelectedActivity
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.content_image_set_selected.view.*
 
@@ -31,7 +34,18 @@ class ImageSetSelectedPathsAdapter(
         val imageSet = imageSetsPaths[position]
         // Safe call == ?
         holder?.let {
-            Picasso.get().load(imageSet).resize(120, 60).into(holder.url)
+            Picasso
+                .get()
+                .load(imageSet)
+                .resize(218, 218).rotate(90.0F)
+//                .centerCrop()
+                .into(holder.url)
+            it.itemView.setOnClickListener {
+                val intent = Intent(context, FullScreenImageSelectedActivity::class.java)
+                intent.putExtra("imageUrl", imageSet)
+                context.startActivity(intent)
+            }
+
         }
     }
 

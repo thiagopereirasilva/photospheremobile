@@ -58,6 +58,7 @@ class DialogNewImageSet : DialogFragment() {
                 imageSet?.let { it1 -> saveImageSet(it1) }
                 val intent = Intent(it, MainActivity::class.java)
                 it.startActivity(intent)
+                activity!!.finish()
             }
         }
 

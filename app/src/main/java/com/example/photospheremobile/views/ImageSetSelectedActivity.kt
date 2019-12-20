@@ -21,11 +21,20 @@ class ImageSetSelectedActivity : AppCompatActivity() {
 
         val imageSet = intent.getSerializableExtra("imageSet") as? ImageSet
 
+        val actionbar = supportActionBar
+        actionbar!!.title = "ImageSet "+imageSet?.label
+        actionbar.setDisplayHomeAsUpEnabled(true)
+
         val recyclerView = image_set_paths_recyclerview
         val layoutManager = GridLayoutManager(this, 2)
         recyclerView.layoutManager = layoutManager
 
         mAdapter = ImageSetSelectedPathsAdapter(imageSet?.imagesPaths!!, this)
         recyclerView!!.adapter = mAdapter
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

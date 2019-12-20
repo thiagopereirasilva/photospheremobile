@@ -19,7 +19,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".views.ImageSetSelectedActivity"></activity>
+        <activity
+            android:name=".views.FullScreenImageSelectedActivity"
+            android:label="@string/title_activity_full_screen_image_selected"
+            android:parentActivityName=".views.ImageSetSelectedActivity"
+            android:theme="@style/AppTheme.Fullscreen">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".views.ImageSetSelectedActivity" />
+        </activity>
+
+        <activity android:name=".views.ImageSetSelectedActivity" />
         <activity
             android:name=".views.MainActivity"
             android:label="@string/title_activity_main"

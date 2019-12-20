@@ -26,13 +26,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        toolbar.title = "ImageSets"
+
+        imageSets()
+
         val recyclerView = image_set_list_recyclerview
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
 
-        mAdapter = ImageSetListAdapter(imageSetsStatic(), this)
+        mAdapter = ImageSetListAdapter(mImageSetList, this)
         recyclerView!!.adapter = mAdapter
-        imageSets()
 
         fab.setOnClickListener { view ->
             val intent = Intent(this, CameraActivity::class.java)
@@ -52,7 +55,7 @@ class MainActivity : AppCompatActivity() {
                 Log.d("onResponse", "List ImageSet: " + response.body()!!.size)
                 val list = response.body()
                 if (list != null) {
-                    mImageSetList.addAll(list!!)
+                    mImageSetList.addAll(list!!.reversed())
                     mAdapter!!.notifyDataSetChanged()
                 }
             }
@@ -61,26 +64,6 @@ class MainActivity : AppCompatActivity() {
                 Log.e("onFailure", "Got error : " + t.localizedMessage)
             }
         })
-    }
-
-    private fun imageSetsStatic(): List<ImageSet> {
-        var imageSet = ImageSet()
-        imageSet?.label = "Test"
-        imageSet?.description = "Test"
-        imageSet?.imagesPaths =
-            listOf(
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
-                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg"
-            )
-        return listOf(
-            imageSet!!
-        )
     }
 
 }

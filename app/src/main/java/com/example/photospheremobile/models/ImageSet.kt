@@ -48,6 +48,12 @@ class ImageSet : Serializable {
         set(value) {
             field = value
         }
+    @SerializedName("hdr_image")
+    var hdrImage: String? = null
+        get() = field
+        set(value) {
+            field = value
+        }
     @SerializedName("created_date")
     var createDate: String? = null
         get() = field

@@ -7,4 +7,8 @@
     <string name="description">Description</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="title_activity_full_screen_image_selected">FullScreenImageSelectedActivity
+    </string>
+    <string name="author">Author</string>
+    <string name="label_author">Created by:</string>
 </resources>

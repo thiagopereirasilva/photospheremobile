@@ -75,6 +75,7 @@ class CameraActivity : AppCompatActivity() {
         back_home.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
+            finish()
         }
     }
 
