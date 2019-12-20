@@ -1,9 +1,10 @@
 package com.example.photospheremobile.models
 
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 import java.util.*
 
-class ImageSet {
+class ImageSet : Serializable {
     @SerializedName("id")
     var id: String? = null
         get() = field

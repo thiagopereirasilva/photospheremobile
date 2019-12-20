@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         recyclerView.layoutManager = layoutManager
 
-        mAdapter = ImageSetListAdapter(mImageSetList, this)
+        mAdapter = ImageSetListAdapter(imageSetsStatic(), this)
         recyclerView!!.adapter = mAdapter
         imageSets()
 
@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
 
 
     private fun imageSets() {
-
         val call = NetworkUtils().imageSetService().getImageSets()
         call.enqueue(object : Callback<MutableList<ImageSet>> {
 
@@ -62,6 +61,26 @@ class MainActivity : AppCompatActivity() {
                 Log.e("onFailure", "Got error : " + t.localizedMessage)
             }
         })
+    }
+
+    private fun imageSetsStatic(): List<ImageSet> {
+        var imageSet = ImageSet()
+        imageSet?.label = "Test"
+        imageSet?.description = "Test"
+        imageSet?.imagesPaths =
+            listOf(
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg",
+                "https://img.fifa.com/image/upload/t_l4/v1574046682/xui5f1ds7bfzzna7shj9.jpg"
+            )
+        return listOf(
+            imageSet!!
+        )
     }
 
 }
